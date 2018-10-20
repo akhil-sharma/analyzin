@@ -1,5 +1,6 @@
 package com.akhil_infinity.akhil.analyzin.CustomViews;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -13,9 +14,11 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.akhil_infinity.akhil.analyzin.Constants;
+import com.akhil_infinity.akhil.analyzin.Api.GenerateApiUrl;
 import com.akhil_infinity.akhil.analyzin.R;
 import com.akhil_infinity.akhil.analyzin.interfaces.AuthenticationListener;
+
+import java.util.Objects;
 
 public class AuthenticationDialog extends Dialog {
 
@@ -24,18 +27,9 @@ public class AuthenticationDialog extends Dialog {
     private WebView webView;
 
     //https://api.instagram.com/oauth/authorize/?client_id=CLIENT-ID&redirect_uri=REDIRECT-URI&response_type=code
-    private final String url = generateAuthUrl();
+    private final String url = new GenerateApiUrl().generateAuthUrl();
 
-    private String generateAuthUrl(){
-        StringBuilder builder = new StringBuilder();
-        builder.append(Constants.BASE_URL);
-        builder.append("oauth/authorize/?client_id=");
-        builder.append(Constants.INSTAGRAM_CLIENT_ID);
-        builder.append("&redirect_uri=");
-        builder.append(Constants.REDIRECT_URL);
-        builder.append("&response_type=token&response_type=token");
-        return builder.toString();
-    }
+
 
     public AuthenticationDialog(@NonNull Context context, AuthenticationListener listener) {
         super(context);
@@ -51,8 +45,8 @@ public class AuthenticationDialog extends Dialog {
         initializeWebView();
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     private void initializeWebView(){
-        Log.e("access_token", "initializeWebView");
         webView = findViewById(R.id.webView);
         webView.getSettings().setAppCachePath(context.getApplicationContext().getCacheDir().getAbsolutePath());
         webView.getSettings().setAllowFileAccess(true);
@@ -74,14 +68,11 @@ public class AuthenticationDialog extends Dialog {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-               Log.e("access_token", "onPageFinished: " + url);
                 //check for auth_token here
                 if (url.contains("#access_token") && !authComplete){
-                    Log.e("access_token", "contains access token");
                     Uri uri = Uri.parse(url);
-                    access_token = uri.getEncodedFragment()
-                            .substring(access_token.lastIndexOf("=")+1);
-                    Log.e("access_token", access_token);
+                    access_token = uri.getEncodedFragment();
+                    access_token = access_token.substring(access_token.lastIndexOf("=")+1);
                     authComplete = true;
                     listener.onCodeReceived(access_token);
                     dismiss();
@@ -98,7 +89,6 @@ public class AuthenticationDialog extends Dialog {
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                Log.e("access_token", "shouldOverrideUrlLoading: " + url);
                 return super.shouldOverrideUrlLoading(view, request);
             }
         });

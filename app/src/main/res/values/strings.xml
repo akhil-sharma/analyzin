@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">AnalyzIn</string>
+    <string name="name">FName LName</string>
+    <string name="about_me">This is all about me.</string>
+    <string name="profile_pic_description">User\'s profile picture</string>
+    <string name="media_head_text">Media</string>
+    <string name="follower_head_text">Followers</string>
+    <string name="following_head_text">Following</string>
 </resources>
